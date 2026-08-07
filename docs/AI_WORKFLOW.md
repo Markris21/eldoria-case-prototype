@@ -4,7 +4,7 @@
 
 Ten dokument definiuje podział odpowiedzialności pomiędzy użytkownika, ChatGPT i Codex w projekcie `eldoria-case-prototype`.
 
-GitHub jest jedynym źródłem prawdy. Lokalne kopie służą głównie do uruchamiania i testowania aktualnego stanu repozytorium.
+GitHub jest jedynym źródłem prawdy. Lokalna kopia repozytorium służy do implementacji przez Codex, uruchamiania programu i ręcznego testowania.
 
 ## Role
 
@@ -19,7 +19,7 @@ Odpowiada za:
 - ręczne testowanie prototypu,
 - zgłaszanie problemów i obserwacji,
 - podejmowanie decyzji po eksperymentach,
-- lokalne pobieranie zmian z GitHuba i ich uruchamianie.
+- pilnowanie, aby lokalne repozytorium było zsynchronizowane z GitHubem przed testem lub rozpoczęciem kolejnego zadania.
 
 Użytkownik nie musi ręcznie implementować kodu, chyba że wyraźnie zdecyduje inaczej.
 
@@ -31,7 +31,7 @@ Odpowiada za:
 
 - analizę problemów projektowych,
 - projektowanie eksperymentów,
-- prowadzenie i aktualizowanie dokumentacji,
+- prowadzenie i aktualizowanie dokumentacji bezpośrednio na GitHubie,
 - identyfikowanie ryzyk i konsekwencji,
 - przygotowywanie precyzyjnych zadań dla Codexa,
 - przegląd wyników eksperymentów i Pull Requestów,
@@ -43,7 +43,7 @@ Krótkie przykłady kodu są dopuszczalne wyłącznie jako wyjaśnienie koncepcj
 
 ### Codex
 
-Codex pełni rolę głównego programisty prototypu.
+Codex pełni rolę głównego programisty prototypu i pracuje lokalnie w VS Code na repozytorium użytkownika.
 
 Odpowiada za:
 
@@ -52,12 +52,41 @@ Odpowiada za:
 - refaktoryzację,
 - naprawę błędów,
 - pracę na krótkich gałęziach,
-- commity,
-- push,
-- tworzenie Pull Requestów,
+- sprawdzenie aktualnego stanu repozytorium przed zmianami,
+- commit po zakończeniu logicznego zakresu,
+- push zmian na GitHub,
+- tworzenie Pull Requestów, gdy dany workflow tego wymaga,
 - techniczne raportowanie wyników.
 
 Codex nie powinien samodzielnie zmieniać zatwierdzonych decyzji projektowych.
+
+## Główna zasada synchronizacji
+
+GitHub jest jedynym źródłem prawdy, ale praca odbywa się zarówno zdalnie, jak i lokalnie.
+
+Dlatego obowiązuje zasada:
+
+```text
+Przed lokalną pracą
+↓
+sprawdź git status
+↓
+pobierz aktualne zmiany z GitHuba
+↓
+Codex implementuje i testuje lokalnie
+↓
+commit
+↓
+push
+↓
+GitHub zawiera aktualny kod
+↓
+ChatGPT może zaktualizować dokumentację na GitHubie
+↓
+przed dalszą lokalną pracą wykonaj pull
+```
+
+Nie rozpoczynamy kolejnego etapu pracy lokalnej, jeżeli istnieją nieopublikowane zmiany Codexa lub lokalna kopia nie zawiera najnowszych zmian z GitHuba.
 
 ## Główny przepływ pracy
 
@@ -70,13 +99,19 @@ ChatGPT
 ↓
 analiza + projekt eksperymentu + dokumentacja
 ↓
-Codex
+Użytkownik synchronizuje lokalne repozytorium
 ↓
-implementacja + testy + Pull Request
+Codex w VS Code
+↓
+implementacja + testy
+↓
+commit + push + opcjonalnie Pull Request
+↓
+GitHub
 ↓
 ChatGPT
 ↓
-review i analiza wyniku
+review + analiza wyniku + aktualizacja dokumentacji
 ↓
 Użytkownik
 ↓
@@ -88,10 +123,41 @@ Nie każdy krok musi zawierać wszystkie trzy role. Prosta zmiana dokumentacyjna
 ## GitHub jako źródło prawdy
 
 - Zatwierdzone dokumenty i kod muszą znajdować się na GitHubie.
-- Lokalne pliki, które nie zostały opublikowane, nie są częścią projektu.
-- Użytkownik powinien utrzymywać lokalne repozytorium możliwie blisko `origin/main`.
-- Przed lokalnym testem preferowany jest `pull` aktualnego `main`.
+- Lokalne pliki, które nie zostały opublikowane, nie są jeszcze częścią wspólnego stanu projektu.
+- Po zakończeniu pracy Codexa jego zmiany muszą zostać opublikowane na GitHubie przed rozpoczęciem kolejnego etapu przez ChatGPT.
+- Po zmianach wykonanych przez ChatGPT bezpośrednio na GitHubie lokalna kopia musi zostać zaktualizowana przed dalszą pracą Codexa lub testem użytkownika.
 - Nie synchronizujemy projektu przez ręczne kopiowanie plików, pendrive ani dyski chmurowe.
+
+## Bezpieczny pull
+
+Przed każdym `pull` należy sprawdzić stan lokalnego repozytorium.
+
+Preferowany przebieg:
+
+```text
+git status
+```
+
+Jeżeli working tree jest czysty, można pobrać zmiany z GitHuba.
+
+Jeżeli istnieją lokalne zmiany, nie wykonujemy bezrefleksyjnie `pull`. Najpierw ustalamy, czy zmiany:
+
+- należą do aktualnej pracy Codexa i powinny zostać commitowane i wypchnięte,
+- są tylko lokalnym eksperymentem i mogą zostać odrzucone,
+- wymagają osobnego brancha lub świadomego połączenia.
+
+## Bezpieczny push po pracy Codexa
+
+Po zakończeniu każdego logicznego zadania Codex powinien:
+
+1. uruchomić odpowiednie testy,
+2. sprawdzić `git status`,
+3. sprawdzić zakres zmian,
+4. wykonać commit,
+5. wykonać push na aktualny branch,
+6. utworzyć PR, jeżeli zmiana nie jest przeznaczona do bezpośredniej publikacji na `main`.
+
+Nie zostawiamy zakończonej pracy wyłącznie lokalnie między sesjami, chyba że użytkownik wyraźnie zdecyduje inaczej.
 
 ## Stabilny main
 
@@ -126,29 +192,46 @@ PR może dokumentować negatywny wynik eksperymentu. Niepowodzenie hipotezy nie 
 Podstawowy model pracy lokalnej:
 
 ```text
-GitHub
+sprawdź git status
 ↓
 git pull
 ↓
-uruchomienie prototypu
+Codex implementuje lub użytkownik uruchamia prototyp
 ↓
-test gameplayu
+testy
 ↓
-obserwacje przekazane ChatGPT
+jeżeli Codex zmieniał kod: commit + push
+↓
+GitHub
+↓
+jeżeli ChatGPT zmienił dokumentację: kolejny pull przed dalszą pracą
 ```
 
-Użytkownik nie musi regularnie tworzyć lokalnych commitów. Lokalna kopia pełni przede wszystkim rolę środowiska testowego.
+Użytkownik nie musi regularnie tworzyć ręcznych commitów. Przy zmianach kodu tę odpowiedzialność przejmuje Codex.
 
-Jeżeli użytkownik wprowadza lokalne zmiany, przed kolejnym `pull` należy sprawdzić `git status` i świadomie zdecydować, czy zmiany zachować.
+## Praca na wielu urządzeniach
+
+Chromebook, laptop domowy i komputer w pracy są równorzędnymi lokalnymi klientami tego samego repozytorium.
+
+Przed zmianą urządzenia preferowany jest stan:
+
+```text
+working tree clean
+wszystkie zakończone zmiany wypchnięte na GitHub
+```
+
+Na kolejnym urządzeniu rozpoczynamy od aktualizacji repozytorium z GitHuba.
+
+Nie zakładamy, że zmiany wykonane na jednym komputerze automatycznie istnieją na pozostałych urządzeniach.
 
 ## VS Code i terminal
 
 Na lokalnych urządzeniach preferujemy:
 
-- VS Code do przeglądania kodu, diffów i Source Control,
-- terminal do uruchamiania programu, testów i wyjątkowych operacji Git.
+- VS Code do implementacji przez Codex, przeglądania kodu, diffów i Source Control,
+- terminal do uruchamiania programu, testów i operacji Git, gdy są potrzebne.
 
-Nie ma obowiązku wykonywania każdej operacji Git w terminalu.
+Codex działający w VS Code może wykonywać operacje Git w imieniu użytkownika zgodnie z zasadami projektu.
 
 ## Zasada małych kroków
 
