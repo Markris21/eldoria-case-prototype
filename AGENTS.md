@@ -96,6 +96,11 @@ Decyzja powinna zawierać:
 ## Workflow Git
 
 - `main` powinien zawsze zawierać działający stan projektu.
+- GitHub jest jedynym źródłem prawdy, ale Codex pracuje lokalnie w VS Code.
+- Przed lokalną pracą należy sprawdzić `git status` i pobrać aktualne zmiany z GitHuba, jeżeli working tree jest czysty.
+- Po zakończeniu logicznego zakresu Codex powinien uruchomić testy, wykonać commit i push.
+- Nie zostawiaj zakończonej pracy Codexa wyłącznie lokalnie między sesjami, chyba że użytkownik wyraźnie zdecyduje inaczej.
+- Po zmianach dokumentacji wykonanych przez ChatGPT bezpośrednio na GitHubie użytkownik powinien wykonać `pull` przed dalszą pracą Codexa lub testem lokalnym.
 - Zmiany kodu powinny powstawać na krótkich gałęziach.
 - Preferowane prefiksy: `experiment/`, `feature/`, `research/`, `fix/` oraz `docs/`.
 - Mała, jednoznaczna zmiana dokumentacji może zostać wykonana bezpośrednio na `main`.
@@ -113,6 +118,36 @@ git diff --check
 
 Uruchom także odpowiednie testy dla zmienianego zakresu.
 
+## Synchronizacja lokalna
+
+Preferowany cykl lokalny:
+
+```text
+git status
+↓
+git pull
+↓
+Codex implementuje i testuje
+↓
+commit
+↓
+push
+↓
+GitHub jest aktualny
+```
+
+Jeżeli ChatGPT w międzyczasie zaktualizował dokumentację bezpośrednio na GitHubie, przed kolejną lokalną zmianą:
+
+```text
+git status
+↓
+git pull
+```
+
+Jeżeli working tree nie jest czysty, nie wykonuj bezrefleksyjnie `pull`. Najpierw ustal, co zrobić z lokalnymi zmianami.
+
+Przy pracy na wielu urządzeniach zakończone zmiany powinny być wypchnięte przed zmianą komputera. Na kolejnym urządzeniu rozpocznij od synchronizacji z GitHubem.
+
 ## Pull Requesty
 
 - Dla zmian kodu preferowany jest Pull Request.
@@ -123,25 +158,11 @@ Uruchom także odpowiednie testy dla zmienianego zakresu.
 
 ## Lokalna kopia użytkownika
 
-Lokalne repozytorium użytkownika jest przede wszystkim środowiskiem testowym.
+Lokalne repozytorium użytkownika jest środowiskiem implementacji Codexa oraz testów użytkownika.
 
-Preferowany przepływ:
+Użytkownik nie musi ręcznie wykonywać regularnych commitów kodu. Przy implementacji robi to Codex.
 
-```text
-GitHub
-↓
-git pull
-↓
-uruchomienie prototypu
-↓
-test gameplayu
-↓
-obserwacje
-```
-
-Jeżeli lokalnie istnieją własne zmiany, przed `pull` należy sprawdzić `git status`.
-
-Do przeglądania zmian i Source Control preferowany jest VS Code. Terminal służy głównie do uruchamiania programu, testów i operacji Git wymagających terminala.
+Do implementacji, przeglądania zmian i Source Control preferowany jest VS Code. Terminal służy głównie do uruchamiania programu, testów i operacji Git wymagających terminala.
 
 ## Dokumentacja a eksperymenty
 
@@ -158,7 +179,9 @@ Uruchomienie i obserwacja
 ↓
 Wniosek
 ↓
-Aktualizacja dokumentacji
+Aktualizacja dokumentacji przez ChatGPT
+↓
+pull przed dalszą pracą lokalną
 ```
 
 Nie spędzaj więcej czasu na dokumentowaniu nieprzetestowanej koncepcji niż na zbudowaniu eksperymentu, który może ją szybko zweryfikować.
