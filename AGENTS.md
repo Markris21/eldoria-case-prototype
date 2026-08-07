@@ -10,7 +10,21 @@ Kod jest narzędziem do testowania hipotez. Celem nie jest jak najszybsze zbudow
 
 - Repozytorium GitHub jest jedynym źródłem prawdy dla tego prototypu.
 - Nie opieraj się na pamięci rozmów, jeżeli dokumentacja repozytorium mówi inaczej.
-- Przed rozpoczęciem pracy przeczytaj `README.md`, `AGENTS.md` oraz dokumenty dotyczące aktualnego eksperymentu.
+- Przed rozpoczęciem pracy przeczytaj `README.md`, `AGENTS.md`, `docs/AI_WORKFLOW.md` oraz dokumenty dotyczące aktualnego eksperymentu.
+
+## Podział ról
+
+Szczegółowy workflow znajduje się w `docs/AI_WORKFLOW.md`.
+
+Najważniejszy podział odpowiedzialności:
+
+- użytkownik — Product Owner i tester gameplayu,
+- ChatGPT — architekt, prowadzący badania, dokumentacja i review,
+- Codex — główny programista, testy, refaktoryzacja, commity, push i Pull Requesty.
+
+ChatGPT nie powinien implementować większych zmian kodu, chyba że użytkownik poprosi o to wyraźnie.
+
+Codex nie powinien samodzielnie zmieniać zatwierdzonych decyzji projektowych.
 
 ## Zasady pracy dla AI
 
@@ -82,8 +96,9 @@ Decyzja powinna zawierać:
 ## Workflow Git
 
 - `main` powinien zawsze zawierać działający stan projektu.
-- Małe eksperymenty mogą być wykonywane na krótkich gałęziach.
-- Preferowane prefiksy gałęzi: `experiment/`, `feature/`, `research/`, `fix/`.
+- Zmiany kodu powinny powstawać na krótkich gałęziach.
+- Preferowane prefiksy: `experiment/`, `feature/`, `research/`, `fix/` oraz `docs/`.
+- Mała, jednoznaczna zmiana dokumentacji może zostać wykonana bezpośrednio na `main`.
 - Jeden commit powinien obejmować jeden logiczny zakres.
 - Wiadomości commitów pisz krótko i po angielsku.
 - Nie wykonuj force push, `git reset --hard` ani destrukcyjnego usuwania bez wyraźnej zgody użytkownika.
@@ -100,9 +115,33 @@ Uruchom także odpowiednie testy dla zmienianego zakresu.
 
 ## Pull Requesty
 
+- Dla zmian kodu preferowany jest Pull Request.
 - PR powinien mieć mały i czytelny zakres.
 - Opis PR powinien podawać, co zmieniono, dlaczego i jaki eksperyment lub problem obsługuje.
 - Jeżeli PR dotyczy eksperymentu, wynik eksperymentu nie musi być pozytywny, aby PR był wartościowy.
+- `main` po mergu musi pozostać uruchamialny.
+
+## Lokalna kopia użytkownika
+
+Lokalne repozytorium użytkownika jest przede wszystkim środowiskiem testowym.
+
+Preferowany przepływ:
+
+```text
+GitHub
+↓
+git pull
+↓
+uruchomienie prototypu
+↓
+test gameplayu
+↓
+obserwacje
+```
+
+Jeżeli lokalnie istnieją własne zmiany, przed `pull` należy sprawdzić `git status`.
+
+Do przeglądania zmian i Source Control preferowany jest VS Code. Terminal służy głównie do uruchamiania programu, testów i operacji Git wymagających terminala.
 
 ## Dokumentacja a eksperymenty
 
@@ -113,7 +152,7 @@ Pomysł / hipoteza
 ↓
 Najmniejszy możliwy eksperyment
 ↓
-Implementacja
+Implementacja przez Codex
 ↓
 Uruchomienie i obserwacja
 ↓
