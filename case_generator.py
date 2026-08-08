@@ -42,8 +42,31 @@ class CaseTruth:
     location: str
     contact_id: str
     contact: str
-    events: tuple[str, ...]
-    causal_chain: tuple[str, ...]
+    contact_day: int
+    affected_day: int
+
+    @property
+    def events(self) -> tuple[str, ...]:
+        """Technical event descriptions derived from structured case timing."""
+
+        return (
+            f"Day {self.contact_day}: {self.source} contaminated material at the {self.location}.",
+            f"Day {self.contact_day}: {self.patient} was at the {self.location}.",
+            f"Day {self.contact_day}: {self.patient} came into contact by {self.contact}.",
+            f"Day {self.affected_day}: The exposure affected {self.patient}.",
+        )
+
+    @property
+    def causal_chain(self) -> tuple[str, ...]:
+        """Causal steps derived from the selected case facts."""
+
+        return (
+            self.source,
+            f"material at the {self.location}",
+            self.contact,
+            f"{self.patient} exposed",
+            f"{self.patient} affected",
+        )
 
 
 def generate_case(seed: int) -> CaseTruth:
@@ -56,20 +79,6 @@ def generate_case(seed: int) -> CaseTruth:
 
     location = LOCATIONS[location_id]
     contact = CONTACTS[contact_id]
-    events = (
-        f"Day 1: {SOURCE} contaminated material at the {location}.",
-        f"Day 1: {patient} was at the {location}.",
-        f"Day 1: {patient} came into contact by {contact}.",
-        f"Day 3: The exposure affected {patient}.",
-    )
-    causal_chain = (
-        SOURCE,
-        f"material at the {location}",
-        contact,
-        f"{patient} exposed",
-        f"{patient} affected",
-    )
-
     return CaseTruth(
         seed=seed,
         patient=patient,
@@ -78,8 +87,8 @@ def generate_case(seed: int) -> CaseTruth:
         location=location,
         contact_id=contact_id,
         contact=contact,
-        events=events,
-        causal_chain=causal_chain,
+        contact_day=1,
+        affected_day=3,
     )
 
 
