@@ -50,3 +50,13 @@ def test_impossible_chronology_is_invalid() -> None:
 
     assert not result.is_valid
     assert result.reasons == ("patient must become affected after contact",)
+
+
+def test_effect_on_contact_day_is_valid() -> None:
+    case = generate_case(18472)
+    same_day_case = replace(case, affected_day=case.contact_day)
+
+    result = validate_case(same_day_case)
+
+    assert result.is_valid
+    assert result.reasons == ()

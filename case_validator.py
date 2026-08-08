@@ -50,7 +50,7 @@ def validate_case(case: CaseTruth) -> ValidationResult:
             f"contact '{case.contact_id}' is not allowed at location '{case.location_id}'"
         )
 
-    if case.affected_day <= case.contact_day:
+    if case.affected_day < case.contact_day:
         reasons.append("patient must become affected after contact")
 
     return ValidationResult(is_valid=not reasons, reasons=tuple(reasons))
