@@ -1,4 +1,4 @@
-"""Minimal procedural case-truth generator for EXP-001."""
+"""Minimal procedural case-truth generator."""
 
 from __future__ import annotations
 
@@ -32,11 +32,27 @@ ALLOWED_CONTACTS_BY_LOCATION = {
 
 
 @dataclass(frozen=True)
+class CaseEvent:
+    """One fact-producing event and the people involved in it."""
+
+    event_id: str
+    day: int
+    fact: str
+    participants: tuple[str, ...]
+    observers: tuple[str, ...] = ()
+
+    @property
+    def description(self) -> str:
+        return f"Day {self.day}: {self.fact}"
+
+
+@dataclass(frozen=True)
 class CaseTruth:
     """All facts that form one generated case."""
 
     seed: int
     patient: str
+    witness: str
     source: str
     location_id: str
     location: str
@@ -44,17 +60,45 @@ class CaseTruth:
     contact: str
     contact_day: int
     affected_day: int
+    contact_observers: tuple[str, ...]
+
+    @property
+    def event_records(self) -> tuple[CaseEvent, ...]:
+        """Structured events derived from the complete case facts."""
+
+        return (
+            CaseEvent(
+                event_id="contamination",
+                day=self.contact_day,
+                fact=f"{self.source} contaminated material at the {self.location}.",
+                participants=(),
+            ),
+            CaseEvent(
+                event_id="presence",
+                day=self.contact_day,
+                fact=f"{self.patient} was at the {self.location}.",
+                participants=(self.patient, self.witness),
+            ),
+            CaseEvent(
+                event_id="contact",
+                day=self.contact_day,
+                fact=f"{self.patient} came into contact by {self.contact}.",
+                participants=(self.patient,),
+                observers=self.contact_observers,
+            ),
+            CaseEvent(
+                event_id="affected",
+                day=self.affected_day,
+                fact=f"The exposure affected {self.patient}.",
+                participants=(self.patient,),
+            ),
+        )
 
     @property
     def events(self) -> tuple[str, ...]:
         """Technical event descriptions derived from structured case timing."""
 
-        return (
-            f"Day {self.contact_day}: {self.source} contaminated material at the {self.location}.",
-            f"Day {self.contact_day}: {self.patient} was at the {self.location}.",
-            f"Day {self.contact_day}: {self.patient} came into contact by {self.contact}.",
-            f"Day {self.affected_day}: The exposure affected {self.patient}.",
-        )
+        return tuple(event.description for event in self.event_records)
 
     @property
     def causal_chain(self) -> tuple[str, ...]:
@@ -76,19 +120,24 @@ def generate_case(seed: int) -> CaseTruth:
     patient = randomizer.choice(PATIENT_NAMES)
     location_id = randomizer.choice(tuple(LOCATIONS))
     contact_id = randomizer.choice(ALLOWED_CONTACTS_BY_LOCATION[location_id])
+    witness = randomizer.choice(tuple(name for name in PATIENT_NAMES if name != patient))
 
     location = LOCATIONS[location_id]
     contact = CONTACTS[contact_id]
+    contact_day = 1
+    affected_day = 3
     return CaseTruth(
         seed=seed,
         patient=patient,
+        witness=witness,
         source=SOURCE,
         location_id=location_id,
         location=location,
         contact_id=contact_id,
         contact=contact,
-        contact_day=1,
-        affected_day=3,
+        contact_day=contact_day,
+        affected_day=affected_day,
+        contact_observers=(witness,),
     )
 
 
@@ -100,6 +149,7 @@ def format_report(case: CaseTruth) -> str:
     return (
         f"CASE SEED: {case.seed}\n\n"
         f"Patient:\n{case.patient}\n\n"
+        f"Witness:\n{case.witness}\n\n"
         f"Source:\n{case.source}\n\n"
         f"Location:\n{case.location}\n\n"
         f"Contact:\n{case.contact}\n\n"
