@@ -25,6 +25,7 @@ class InterviewTopic:
     topic_id: str
     label: str
     source_event_id: str
+    unlocked_by_event_id: str | None = None
 
 
 @dataclass(frozen=True)
@@ -44,6 +45,7 @@ TOPICS = (
         "carrier_condition",
         "What was that person's condition?",
         "carrier_condition",
+        unlocked_by_event_id="contact",
     ),
 )
 
@@ -75,6 +77,20 @@ def ask_topic(
     if known_fact not in discoveries:
         discoveries.append(known_fact)
     return known_fact.fact
+
+
+def available_topics(
+    discoveries: list[KnownFact],
+) -> tuple[InterviewTopic, ...]:
+    """Return topics unlocked by facts the player has actually discovered."""
+
+    discovered_event_ids = {fact.source_event_id for fact in discoveries}
+    return tuple(
+        topic
+        for topic in TOPICS
+        if topic.unlocked_by_event_id is None
+        or topic.unlocked_by_event_id in discovered_event_ids
+    )
 
 
 def hypotheses_for(case: CaseTruth) -> tuple[Hypothesis, Hypothesis]:
@@ -145,18 +161,26 @@ def run_interview(case: CaseTruth) -> None:
             continue
 
         participant = participants[int(participant_choice) - 1][0]
-        print("\nChoose a topic:")
-        for index, topic in enumerate(TOPICS, start=1):
-            print(f"{index}. {topic.label}")
-
-        topic_choice = input("> ").strip()
-        if topic_choice not in tuple(str(index) for index in range(1, len(TOPICS) + 1)):
-            print("Invalid choice.")
-            continue
-
-        topic = TOPICS[int(topic_choice) - 1]
         knowledge = derive_knowledge(case.event_records, participant)
-        print(f"\nAnswer: {ask_topic(knowledge, topic, discoveries)}")
+        while True:
+            current_topics = available_topics(discoveries)
+            print("\nChoose a topic:")
+            for index, topic in enumerate(current_topics, start=1):
+                print(f"{index}. {topic.label}")
+            print("0. Back to participants")
+
+            topic_choice = input("> ").strip()
+            if topic_choice == "0":
+                break
+            valid_choices = tuple(
+                str(index) for index in range(1, len(current_topics) + 1)
+            )
+            if topic_choice not in valid_choices:
+                print("Invalid choice.")
+                continue
+
+            topic = current_topics[int(topic_choice) - 1]
+            print(f"\nAnswer: {ask_topic(knowledge, topic, discoveries)}")
 
     print("\nPLAYER DISCOVERIES")
     if discoveries:
