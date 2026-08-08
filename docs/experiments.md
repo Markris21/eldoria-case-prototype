@@ -216,7 +216,7 @@ Wiedza może wynikać z udziału i obserwacji zdarzeń oraz zachowywać pochodze
 
 ## EXP-003 — Generator śledztwa, a nie tylko choroby
 
-**Status:** TESTOWANA
+**Status:** POTWIERDZONA
 
 ### Hipoteza
 
@@ -234,14 +234,62 @@ Rozwiązanie wymaga połączenia kilku informacji, a sama lista objawów nie uja
 
 Narracyjna warstwa nie wnosi decyzji i można równie dobrze wyświetlić od razu techniczną kartę pacjenta.
 
+### Metoda
+
+Dodano minimalny terminalowy wywiad oparty wyłącznie na wiedzy uczestników potwierdzonej w EXP-002.
+
+Gracz rozpoczyna od krótkiego raportu przypadku, który informuje jedynie, że pacjent zachorował po niedawnym wyjściu. Raport nie ujawnia miejsca, sposobu kontaktu, źródła, skażenia ani pełnego łańcucha przyczynowego.
+
+Gracz może wybrać pacjenta albo świadka oraz jeden z trzech tematów:
+
+- gdzie wydarzenie miało miejsce,
+- co wydarzyło się podczas kontaktu,
+- co wydarzyło się później.
+
+Odpowiedzi są filtrowane z `KnownFact` rozmówcy przez istniejące identyfikatory zdarzeń. Funkcja odpowiedzi nie otrzymuje pełnego `CaseTruth`, dzięki czemu ukryta prawda nie jest dostępna jako skrót do generowania odpowiedzi.
+
+Fakty odkryte przez gracza są zapisywane tylko wtedy, gdy zostały rzeczywiście zwrócone podczas wywiadu.
+
 ### Wynik
 
-Jeszcze nie wykonano testu implementacyjnego.
+Po poprawce semantyki pytania o miejsce pełny zestaw testów zakończył się wynikiem `168 passed`.
+
+Ręczny test gameplayu dla seeda `18472` pokazał, że:
+
+- początkowe zgłoszenie nie wystarcza do poznania pełnej prawdy,
+- pacjent ujawnia miejsce, obserwowalny kontakt i późniejszy skutek,
+- świadek ujawnia miejsce i obserwowalny kontakt,
+- świadek odpowiada `I don't know.` na pytanie o późniejszy stan,
+- żadna odpowiedź nie ujawnia zarodników redcap ani skażenia,
+- powtarzające się informacje nie są duplikowane w `PLAYER DISCOVERIES`,
+- po zakończeniu wywiadu pełna prawda pokazuje informacje, których gracz wcześniej nie znał.
+
+### Ważna obserwacja z testu ręcznego
+
+Pierwsza wersja pytania o miejsce brzmiała `Where were you?`, ale świadek odpowiadał faktem dotyczącym miejsca pobytu pacjenta. Fakt był prawdziwy, lecz nie odpowiadał semantycznie na pytanie.
+
+Temat zmieniono na neutralne `Where did this happen?`, które poprawnie pasuje do tego samego faktu zarówno dla pacjenta, jak i świadka bez tworzenia odpowiedzi zależnych od roli.
+
+### Ograniczenia wyniku
+
+Eksperyment używa tylko dwóch rozmówców i trzech tematów. Odpowiedzi są bezpośrednią prezentacją technicznych faktów, a nie naturalnym dialogiem.
+
+Nie testowano jeszcze jakości języka, osobowości, swobodnych pytań, kłamstw, niepewności, pamięci, dowodów fizycznych, alternatywnych hipotez ani diagnozy.
+
+W szczególności tekst `The exposure affected Oren.` jest wystarczający do testu przepływu informacji, ale nie jest docelową wypowiedzią NPC.
+
+EXP-003 potwierdza istnienie podstawowej pętli odkrywania informacji, nie potwierdza jeszcze, że śledztwo jest wystarczająco głębokie lub ciekawe jako docelowy gameplay.
+
+### Wniosek
+
+EXP-003 został potwierdzony na aktualnym poziomie eksperymentu.
+
+Gracz może rozpocząć z niepełną wiedzą i zwiększać ją przez celowy wybór rozmówcy oraz tematu, a odpowiedzi pozostają ograniczone do wiedzy rozmówcy.
 
 ---
 
 ## Następny eksperyment
 
-EXP-001 potwierdził składanie minimalnej prawdy przypadku, Etap 2 potwierdził możliwość niezależnego wykrywania znanych sprzeczności, a EXP-002 potwierdził wyprowadzanie różnej wiedzy uczestników z ich udziału i obserwacji zdarzeń.
+EXP-001 potwierdził składanie minimalnej prawdy przypadku, Etap 2 potwierdził wykrywanie znanych sprzeczności, EXP-002 potwierdził wyprowadzanie wiedzy uczestników, a EXP-003 potwierdził minimalną pętlę odkrywania informacji przez wywiad.
 
-Następny eksperyment powinien sprawdzić EXP-003: czy z pełnej prawdy przypadku można utworzyć minimalne śledztwo, w którym gracz początkowo zna tylko część informacji i odkrywa kolejne fakty przez działania.
+Następny krok powinien sprawdzić kolejne ryzyko z roadmapy: czy przypadek można rozwiązać przez odróżnienie poprawnej hipotezy od sensownej alternatywy na podstawie dostępnych informacji, bez zgadywania.
