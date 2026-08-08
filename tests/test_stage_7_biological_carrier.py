@@ -19,6 +19,7 @@ from case_interview import (
     format_initial_report,
     hypotheses_for,
     is_correct_hypothesis,
+    run_interview,
 )
 from case_knowledge import derive_knowledge
 from case_validator import validate_case
@@ -93,6 +94,21 @@ def test_observable_carrier_facts_do_not_reveal_hidden_causation() -> None:
             assert "infect" not in observable
             assert "transmission" not in observable
             assert "caused" not in observable
+
+
+def test_biological_interview_uses_neutral_participant_label(
+    monkeypatch, capsys
+) -> None:
+    case = generate_case(BIOLOGICAL_SEED)
+    answers = iter(("0", "0"))
+    monkeypatch.setattr("builtins.input", lambda _: next(answers))
+
+    run_interview(case)
+
+    participant_menu = capsys.readouterr().out.split("0. End interview", 1)[0]
+    assert f"2. {case.carrier} (participant)" in participant_menu
+    for hidden_role_word in ("carrier", "infected", "source", "transmission"):
+        assert hidden_role_word not in participant_menu.lower()
 
 
 def test_carrier_knowledge_comes_only_from_event_involvement_with_provenance() -> None:

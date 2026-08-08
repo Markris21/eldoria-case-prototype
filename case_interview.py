@@ -123,7 +123,7 @@ def run_interview(case: CaseTruth) -> None:
 
     discoveries: list[KnownFact] = []
     second_role = (
-        "carrier"
+        "participant"
         if case.archetype_id == BIOLOGICAL_CARRIER_ARCHETYPE
         else "witness"
     )
