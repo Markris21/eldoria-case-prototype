@@ -5,7 +5,13 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 
-from case_generator import CaseEvent, CaseTruth, format_report, generate_case
+from case_generator import (
+    BIOLOGICAL_CARRIER_ARCHETYPE,
+    CaseEvent,
+    CaseTruth,
+    format_report,
+    generate_case,
+)
 
 
 @dataclass(frozen=True)
@@ -32,7 +38,15 @@ def format_participant_knowledge(case: CaseTruth) -> str:
     """Show complete truth and event-derived knowledge with provenance."""
 
     sections = ["COMPLETE TRUTH", format_report(case), "PARTICIPANT KNOWLEDGE"]
-    for participant, role in ((case.patient, "patient"), (case.witness, "witness")):
+    second_role = (
+        "carrier"
+        if case.archetype_id == BIOLOGICAL_CARRIER_ARCHETYPE
+        else "witness"
+    )
+    for participant, role in (
+        (case.patient, "patient"),
+        (case.witness, second_role),
+    ):
         facts = derive_knowledge(case.event_records, participant)
         lines = [f"{participant} ({role}):"]
         lines.extend(
