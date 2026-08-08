@@ -31,6 +31,13 @@ def test_initial_report_does_not_reveal_hidden_truth() -> None:
     assert "causal" not in report.lower()
 
 
+def test_location_topic_neutrally_asks_about_presence_event() -> None:
+    location_topic = topic("where")
+
+    assert location_topic.label == "Where did this happen?"
+    assert location_topic.source_event_id == "presence"
+
+
 @pytest.mark.parametrize(
     ("topic_id", "event_id"),
     (("where", "presence"), ("contact", "contact"), ("later", "affected")),

@@ -22,7 +22,7 @@ class InterviewTopic:
 
 
 TOPICS = (
-    InterviewTopic("where", "Where were you?", "presence"),
+    InterviewTopic("where", "Where did this happen?", "presence"),
     InterviewTopic("contact", "What happened there?", "contact"),
     InterviewTopic("later", "What happened later?", "affected"),
 )
