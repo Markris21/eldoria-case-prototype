@@ -162,29 +162,55 @@ Możemy przejść do badania uczestników i rozdzielania wiedzy bez dalszego roz
 
 ## EXP-002 — Rozdzielona wiedza uczestników
 
-**Status:** TESTOWANA
+**Status:** POTWIERDZONA
 
 ### Hipoteza
 
-Rozdzielenie faktów między pacjenta, rodzinę i świadków może tworzyć wartościową dedukcję podczas wywiadu.
+Rozdzielenie faktów między uczestników na podstawie ich rzeczywistego udziału i obserwacji zdarzeń może tworzyć różną, logicznie uzasadnioną wiedzę bez ręcznego przypisywania list informacji do ról.
 
-### Oczekiwany test
+### Metoda
 
-Generator utworzy przypadek z kilkoma uczestnikami, a system przypisze im wiedzę wynikającą z ich udziału w wydarzeniach.
+Do minimalnej prawdy przypadku dodano jednego świadka różnego od pacjenta oraz strukturalne rekordy zdarzeń zawierające uczestników i obserwatorów.
 
-Gracz w terminalu będzie mógł wybierać rozmówcę i temat pytania.
+Wiedza jest wyprowadzana przez jedną funkcję na podstawie zdarzeń, w których dana osoba uczestniczyła albo które obserwowała.
 
-### Kryterium pozytywne
+Każdy znany fakt zachowuje `source_event_id`, dzięki czemu można wskazać zdarzenie będące źródłem wiedzy.
 
-Informacje od różnych osób realnie zmieniają rozumienie przypadku i nie sprowadzają się do wielokrotnego powtarzania tych samych danych.
-
-### Kryterium negatywne
-
-Optymalna strategia polega na mechanicznym przepytaniu wszystkich osób ze wszystkich tematów albo dodatkowi rozmówcy nie wnoszą wartości.
+Pacjent uczestniczy w zdarzeniu obecności, kontakcie i późniejszym skutku. Świadek uczestniczy w zdarzeniu obecności i obserwuje kontakt, ale nie uczestniczy ani nie obserwuje późniejszego skutku.
 
 ### Wynik
 
-Jeszcze nie wykonano testu implementacyjnego.
+Po poprawce usuwającej przeciek pełnej prawdy do wiedzy uczestników pełny zestaw testów zakończył się wynikiem `155 passed`.
+
+Test behawioralny potwierdził, że usunięcie świadka z obserwatorów kontaktu usuwa z jego wiedzy fakt kontaktu.
+
+Ręczna demonstracja na lokalnym `main` dla seeda `18472` pokazała:
+
+- pacjent zna swoją obecność w miejscu, obserwowalny kontakt oraz późniejszy skutek,
+- świadek zna obecność pacjenta i obserwowalny kontakt,
+- świadek nie zna późniejszego skutku,
+- ani pacjent, ani świadek nie otrzymują automatycznie informacji, że kontakt dotyczył skażonego źródła,
+- pełna prawda przypadku nadal zachowuje źródło i skażenie.
+
+### Ważna obserwacja z testu ręcznego
+
+Pierwsza wersja eksperymentu ujawniała uczestnikom informację diagnostyczną, ponieważ tekst zdarzenia kontaktu zawierał określenie skażenia.
+
+Zostało to rozdzielone na pełną prawdę przypadku oraz obserwowalną czynność. Dzięki temu fakt znany uczestnikowi opisuje to, co mógł rzeczywiście zaobserwować, bez automatycznego ujawniania ukrytej przyczyny.
+
+### Ograniczenia wyniku
+
+Eksperyment obejmuje tylko jednego pacjenta, jednego świadka i kilka prostych zdarzeń.
+
+Nie potwierdza jeszcze wartości gameplayowej wywiadu, częściowej wiedzy, błędnej interpretacji, pamięci, kłamstw ani wnioskowania przez uczestników.
+
+Nie potwierdza również, że każda przyszła informacja może być bezpiecznie reprezentowana bez dodatkowego rozdzielenia prawdy świata od informacji obserwowalnej.
+
+### Wniosek
+
+EXP-002 został potwierdzony na aktualnym poziomie eksperymentu.
+
+Wiedza może wynikać z udziału i obserwacji zdarzeń oraz zachowywać pochodzenie informacji bez ręcznego przypisywania list wiedzy do ról.
 
 ---
 
@@ -216,6 +242,6 @@ Jeszcze nie wykonano testu implementacyjnego.
 
 ## Następny eksperyment
 
-EXP-001 potwierdził składanie minimalnej prawdy przypadku, a Etap 2 potwierdził możliwość niezależnego wykrywania znanych sprzeczności.
+EXP-001 potwierdził składanie minimalnej prawdy przypadku, Etap 2 potwierdził możliwość niezależnego wykrywania znanych sprzeczności, a EXP-002 potwierdził wyprowadzanie różnej wiedzy uczestników z ich udziału i obserwacji zdarzeń.
 
-Następny eksperyment powinien sprawdzić EXP-002: czy wiedza uczestników może wynikać z ich rzeczywistego udziału w historii zamiast z arbitralnego przypisywania informacji.
+Następny eksperyment powinien sprawdzić EXP-003: czy z pełnej prawdy przypadku można utworzyć minimalne śledztwo, w którym gracz początkowo zna tylko część informacji i odkrywa kolejne fakty przez działania.
