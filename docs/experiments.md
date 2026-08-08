@@ -109,6 +109,57 @@ Możemy przejść do badania kolejnego ryzyka bez rozbudowywania EXP-001 na zapa
 
 ---
 
+## Etap 2 — Minimalny walidator spójności
+
+**Status:** POTWIERDZONA
+
+### Hipoteza
+
+Prosty, niezależny krok walidacji może wykrywać znane błędne lub sprzeczne przypadki i wskazywać konkretny powód odrzucenia bez automatycznej naprawy danych.
+
+### Metoda
+
+Dodano minimalny `validate_case(case)`, który zwraca wynik `VALID` albo `INVALID` wraz z powodami.
+
+Eksperyment celowo obejmował tylko trzy typy błędów:
+
+- niedozwolone połączenie miejsca i sposobu kontaktu,
+- brak wymaganej wartości,
+- skutek występujący przed kontaktem.
+
+Walidator korzysta z istniejącej reguły kompatybilności miejsca i kontaktu zamiast duplikować ją w osobnej tabeli.
+
+Do `CaseTruth` dodano tylko strukturalne pola czasu potrzebne do sprawdzenia minimalnej chronologii. Nie zbudowano ogólnego silnika osi czasu ani reguł.
+
+### Wynik
+
+Po poprawce dotyczącej efektu występującego tego samego dnia pełny zestaw testów zakończył się wynikiem `127 passed`.
+
+Ręczna demonstracja na lokalnym `main` poprawnie zwróciła:
+
+- jeden wygenerowany przypadek jako `VALID`,
+- niedozwolone połączenie miejsca i kontaktu jako `INVALID`,
+- brak pacjenta jako `INVALID`,
+- skutek wcześniejszy niż kontakt jako `INVALID`.
+
+Każdy błędny przypadek podał właściwy powód odrzucenia.
+
+### Ograniczenia wyniku
+
+Walidator potwierdza wyłącznie możliwość wykrywania znanych klas błędów na obecnym małym modelu.
+
+Nie potwierdza jeszcze kompletności walidacji, skalowania do rozbudowanej domeny ani potrzeby tworzenia ogólnego silnika reguł.
+
+Efekt w tym samym dniu co kontakt jest celowo dopuszczony, ponieważ eksperyment nie ustanawia dodatkowej reguły domenowej dotyczącej minimalnego czasu wystąpienia skutku.
+
+### Wniosek
+
+Etap 2 został potwierdzony na aktualnym poziomie eksperymentu.
+
+Możemy przejść do badania uczestników i rozdzielania wiedzy bez dalszego rozbudowywania walidatora na zapas.
+
+---
+
 ## EXP-002 — Rozdzielona wiedza uczestników
 
 **Status:** TESTOWANA
@@ -165,6 +216,6 @@ Jeszcze nie wykonano testu implementacyjnego.
 
 ## Następny eksperyment
 
-EXP-001 potwierdził, że minimalna prawda przypadku może być składana z małych elementów danych i prostych reguł.
+EXP-001 potwierdził składanie minimalnej prawdy przypadku, a Etap 2 potwierdził możliwość niezależnego wykrywania znanych sprzeczności.
 
-Kolejny eksperyment powinien sprawdzić następne ryzyko zgodnie z roadmapą projektu, bez rozbudowywania potwierdzonego zakresu na zapas.
+Następny eksperyment powinien sprawdzić EXP-002: czy wiedza uczestników może wynikać z ich rzeczywistego udziału w historii zamiast z arbitralnego przypisywania informacji.
