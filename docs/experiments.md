@@ -350,8 +350,82 @@ Jednocześnie kolejny rozwój śledztwa powinien uwzględnić warunkowe pojawian
 
 ---
 
+## Etap 6 — Różnorodność śledztw
+
+**Status:** POTWIERDZONA
+
+### Hipoteza
+
+Można odróżnić różnorodność konkretnych danych przypadku od rzeczywistej różnorodności struktury śledztwa i zmierzyć, czy generator tworzy odmienne ścieżki gameplayu zamiast jedynie kosmetycznych wariantów.
+
+### Metoda
+
+Dodano niezależny analizator `case_diversity.py`, który domyślnie generuje 500 kolejnych seedów `0–499` i porównuje dwa poziomy różnorodności.
+
+`ConcreteCaseSignature` liczy istniejące konkretne kombinacje danych, w tym pacjenta, świadka, miejsce, kontakt oraz relacje obserwacji i uczestnictwa.
+
+`InvestigationStructureSignature` celowo pomija seed, imiona, lokalizację, tożsamość kontaktu, tożsamość hipotez i renderowane teksty. Po korekcie review opisuje wyłącznie:
+
+- kategorie zdarzeń znane pacjentowi,
+- kategorie zdarzeń znane świadkowi,
+- liczbę dostępnych hipotez,
+- rolę faktu rozróżniającego w dedukcji.
+
+Zmiana treści kontaktu bez zmiany ścieżki wiedzy i dedukcji nie tworzy nowej struktury. Zmiana rzeczywistego wzorca wiedzy tworzy inną sygnaturę.
+
+### Wynik
+
+Po korekcie definicji struktury pełny zestaw testów zakończył się wynikiem `187 passed`.
+
+Analiza seedów `0–499` dała:
+
+- `500` analizowanych seedów,
+- `118` unikalnych konkretnych przypadków,
+- tylko `2` unikalne struktury śledztwa,
+- struktura dominująca: `335/500` (`67.0%`),
+- druga struktura: `165/500` (`33.0%`).
+
+W obu strukturach pacjent zna `presence`, `contact`, `food_history`, `affected`, a świadek zna `presence`, `contact`. Dostępne są zawsze dwie hipotezy.
+
+Różnica między dwiema wykrytymi strukturami dotyczy wyłącznie roli faktu `food_history` w rozumowaniu:
+
+- w `67.0%` przypadków fakt eliminuje alternatywę,
+- w `33.0%` przypadków fakt bezpośrednio wspiera poprawną hipotezę.
+
+### Interpretacja
+
+Wynik pokazuje wyraźnie, że różnorodność konkretnych kombinacji danych nie przekłada się obecnie na podobną różnorodność gameplayu.
+
+`118` różnych konkretnych przypadków sprowadza się do `2` struktur dedukcyjnych, a z perspektywy przebiegu gracza są one jeszcze bardziej podobne: w obu przypadkach gracz odkrywa kontakt, sprawdza historię jedzenia i wybiera między dwiema hipotezami.
+
+Dlatego obecny prototyp ma bardzo niską różnorodność strukturalną. Jest to oczekiwany i użyteczny wynik badawczy dla celowo małej domeny, a nie powód do sztucznego zwiększania liczby struktur w tym eksperymencie.
+
+### Ważna obserwacja z review
+
+Pierwsza wersja analizatora bezpośrednio uwzględniała `actual_contact_id` oraz tożsamość hipotez. Dawało to `3` struktury, ale zawyżało różnorodność, ponieważ inny kontakt nie musi oznaczać innej ścieżki śledztwa.
+
+Po usunięciu tożsamości treści i opisaniu roli faktu w dedukcji wynik spadł do `2` struktur. Ta korekta potwierdziła, że metryka musi opisywać to, jak gracz bada i rozumuje, a nie tylko jakie wartości danych zostały wylosowane.
+
+### Ograniczenia wyniku
+
+Sygnatura odzwierciedla tylko obecne mechaniki i będzie wymagała świadomej aktualizacji, gdy pojawią się nowe sposoby zdobywania informacji, różne wzorce wiedzy, badania, dowody lub inne ścieżki dedukcji.
+
+Analiza nie mierzy jakości narracji, ciekawości, trudności ani naturalności rozmowy.
+
+Etap 6 nie zwiększa różnorodności generatora i nie potwierdza, że obecny poziom różnorodności jest wystarczający dla finalnej gry.
+
+### Wniosek
+
+Etap 6 został potwierdzony jako metoda pomiaru różnorodności strukturalnej.
+
+Jednocześnie wynik generatora jest negatywny w sensie jakościowym: obecny prototyp tworzy bardzo mało rzeczywiście różnych ścieżek śledztwa. Dalsze rozszerzanie powinno być oceniane ponownie tą samą metodą, aby sprawdzić, czy dodawane mechaniki zwiększają różnorodność gameplayu, a nie tylko liczbę wariantów danych.
+
+---
+
 ## Następny eksperyment
 
-EXP-001 potwierdził składanie minimalnej prawdy przypadku, Etap 2 potwierdził wykrywanie znanych sprzeczności, EXP-002 potwierdził wyprowadzanie wiedzy uczestników, EXP-003 potwierdził minimalną pętlę odkrywania informacji przez wywiad, a Etap 5 potwierdził minimalną rozwiązywalność przez porównanie hipotez.
+Dotychczasowe etapy potwierdziły spójne składanie prawdy przypadku, walidację, wiedzę uczestników, odkrywanie informacji, minimalną dedukcję oraz możliwość mierzenia różnorodności strukturalnej.
 
-Następny krok powinien sprawdzić Etap 6: czy generator tworzy realnie różne śledztwa, a nie tylko kosmetyczzne warianty nazw, miejsc i kontaktów.
+Etap 6 pokazał jednocześnie, że obecna bardzo mała domena daje tylko dwie niemal identyczne struktury dedukcyjne.
+
+Następny krok powinien przejść do Etapu 7 i sprawdzić kontrolowane rozszerzenie domeny: czy nowy rodzaj zawartości można dodać głównie przez dane i istniejące reguły oraz czy faktycznie zwiększa on różnorodność śledztw, zamiast jedynie mnożyć kosmetyczne warianty.
