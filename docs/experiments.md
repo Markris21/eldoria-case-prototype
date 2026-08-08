@@ -288,8 +288,70 @@ Gracz może rozpocząć z niepełną wiedzą i zwiększać ją przez celowy wyb�
 
 ---
 
+## Etap 5 — Hipotezy i rozwiązywalność
+
+**Status:** POTWIERDZONA
+
+### Hipoteza
+
+Przypadek może zawierać jedną poprawną hipotezę i co najmniej jedną sensowną alternatywę, które gracz potrafi rozróżnić przez odkryte fakty zamiast przez zgadywanie.
+
+### Metoda
+
+Do istniejącego przypadku dodano dokładnie dwie hipotezy: jedną odpowiadającą rzeczywistemu `contact_id` w `CaseTruth` oraz jedną alternatywną.
+
+Ocena wyboru gracza porównuje wyłącznie wybraną hipotezę z ukrytą prawdą przypadku. Odkrycia gracza nie są używane przez program do automatycznej dedukcji i nie istnieje tabela typu „trop wspiera odpowiedź A”.
+
+Dodano strukturalne zdarzenie `food_history`. Dla przypadku wodnego z seeda `18472` pacjent wie, że nie jadł nic podczas pobytu w lesie. Fakt zachowuje pochodzenie w systemie zdarzeń i jest odkrywany przez ten sam mechanizm wiedzy co wcześniejsze informacje.
+
+Do wywiadu dodano jeden temat dotyczący jedzenia. Pacjent może ujawnić ten fakt, natomiast świadek bez odpowiedniej wiedzy odpowiada `I don't know.`.
+
+### Wynik
+
+Pełny zestaw testów zakończył się wynikiem `178 passed`.
+
+Ręczny test dla seeda `18472` pokazał, że:
+
+- początkowy raport nie sugeruje wody ani jedzenia,
+- informacja, że Oren pił wodę, wskazuje istotny kierunek, ale sama nie wyklucza alternatywy związanej z jedzeniem,
+- informacja, że Oren nie jadł nic podczas pobytu w lesie, osłabia hipotezę dotyczącą jedzenia,
+- żadna odpowiedź nie ujawnia wprost skażenia ani zarodników,
+- gracz może wybrać hipotezę dotyczącą skażonej wody na podstawie odkrytych informacji,
+- poprawność wyboru jest sprawdzana względem `CaseTruth`, a nie względem ręcznie przypisanych tropów.
+
+W ręcznym teście poprawna hipoteza została wybrana bez konieczności poznania pełnej prawdy przypadku.
+
+### Ważne obserwacje gameplayowe
+
+Test ujawnił dwa problemy, które nie unieważniają wyniku Etapu 5, ale mogą prowadzić do mechanicznego przepytywania zamiast naturalnego śledztwa:
+
+- wszystkie tematy są dostępne od początku, nawet jeśli wcześniejsze odpowiedzi nie dały jeszcze graczowi powodu, aby o nie pytać; przykładowo pytanie o jedzenie jest dostępne zanim gracz dowie się, gdzie wydarzenie miało miejsce,
+- po każdym pytaniu interfejs wraca do wyboru rozmówcy, przez co jedna rozmowa jest sztucznie przerywana; naturalniejszy przepływ powinien pozwalać kontynuować pytania z wybraną osobą i wrócić do listy rozmówców dopiero na żądanie gracza.
+
+Istotna jest również pozytywna obserwacja: odkrycie picia wody nie podaje rozwiązania wprost, lecz daje graczowi powód, aby zainteresować się wodą i w przyszłości wykonać dalsze badania lub szukać dowodów.
+
+### Ograniczenia wyniku
+
+Eksperyment obejmuje dokładnie dwie hipotezy i jeden dodatkowy fakt rozróżniający.
+
+Alternatywy nadal są budowane z bardzo małej domeny kontaktów, więc wynik nie potwierdza jeszcze jakości wielu hipotez, skalowania, trudności dedukcji ani różnorodności spraw.
+
+Obecny interfejs tematów może sugerować graczowi kierunek śledztwa przez sam fakt wyświetlenia wszystkich dostępnych pytań. Nie potwierdzono jeszcze modelu, w którym kolejne pytania lub działania stają się dostępne jako konsekwencja wcześniej odkrytych informacji.
+
+Etap 5 nie testuje również badań środowiskowych, dowodów fizycznych, laboratoryjnego potwierdzenia źródła, punktacji dowodów ani pełnej diagnozy.
+
+### Wniosek
+
+Etap 5 został potwierdzony na aktualnym poziomie eksperymentu.
+
+Minimalny przypadek może wymagać połączenia kilku odkrytych informacji, aby odróżnić poprawną hipotezę od sensownej alternatywy, bez ujawniania odpowiedzi w jednym oczywistym fakcie.
+
+Jednocześnie kolejny rozwój śledztwa powinien uwzględnić warunkowe pojawianie się tematów lub działań oraz bardziej ciągły przebieg rozmowy, aby ograniczyć strategię polegającą na mechanicznym zadawaniu wszystkich pytań po kolei.
+
+---
+
 ## Następny eksperyment
 
-EXP-001 potwierdził składanie minimalnej prawdy przypadku, Etap 2 potwierdził wykrywanie znanych sprzeczności, EXP-002 potwierdził wyprowadzanie wiedzy uczestników, a EXP-003 potwierdził minimalną pętlę odkrywania informacji przez wywiad.
+EXP-001 potwierdził składanie minimalnej prawdy przypadku, Etap 2 potwierdził wykrywanie znanych sprzeczności, EXP-002 potwierdził wyprowadzanie wiedzy uczestników, EXP-003 potwierdził minimalną pętlę odkrywania informacji przez wywiad, a Etap 5 potwierdził minimalną rozwiązywalność przez porównanie hipotez.
 
-Następny krok powinien sprawdzić kolejne ryzyko z roadmapy: czy przypadek można rozwiązać przez odróżnienie poprawnej hipotezy od sensownej alternatywy na podstawie dostępnych informacji, bez zgadywania.
+Następny krok powinien sprawdzić Etap 6: czy generator tworzy realnie różne śledztwa, a nie tylko kosmetyczzne warianty nazw, miejsc i kontaktów.
