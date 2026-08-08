@@ -32,6 +32,7 @@ def test_patient_knows_events_they_participated_in() -> None:
     assert tuple(fact.source_event_id for fact in knowledge) == (
         "presence",
         "contact",
+        "food_history",
         "affected",
     )
 
