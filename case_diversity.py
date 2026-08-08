@@ -27,11 +27,10 @@ class ConcreteCaseSignature:
 class InvestigationStructureSignature:
     """Gameplay structure with identity, location, seed, and wording removed."""
 
-    actual_contact_id: str
     patient_known_event_ids: tuple[str, ...]
     witness_known_event_ids: tuple[str, ...]
-    hypothesis_contact_ids: tuple[str, ...]
-    food_history_outcome: str
+    hypothesis_count: int
+    distinguishing_fact_effect: str
 
 
 @dataclass(frozen=True)
@@ -77,20 +76,20 @@ def investigation_structure_signature(
 
     patient_knowledge = derive_knowledge(case.event_records, case.patient)
     witness_knowledge = derive_knowledge(case.event_records, case.witness)
+    hypotheses = hypotheses_for(case)
 
     return InvestigationStructureSignature(
-        actual_contact_id=case.contact_id,
         patient_known_event_ids=tuple(
             fact.source_event_id for fact in patient_knowledge
         ),
         witness_known_event_ids=tuple(
             fact.source_event_id for fact in witness_knowledge
         ),
-        hypothesis_contact_ids=tuple(
-            hypothesis.contact_id for hypothesis in hypotheses_for(case)
-        ),
-        food_history_outcome=(
-            "ate_food" if case.contact_id == "eating_food" else "did_not_eat"
+        hypothesis_count=len(hypotheses),
+        distinguishing_fact_effect=(
+            "supports_correct_hypothesis"
+            if case.contact_id == "eating_food"
+            else "eliminates_alternative"
         ),
     )
 
@@ -142,12 +141,12 @@ def format_analysis(analysis: DiversityAnalysis) -> str:
         f"{analysis.unique_investigation_structures}",
         "",
         "Investigation structure signature fields:",
-        "- actual contact type",
         "- patient known event categories",
         "- witness known event categories",
-        "- available hypothesis contact types",
-        "- food-history outcome",
-        "Ignored as cosmetic: seed, names, location, and rendered wording",
+        "- number of available hypotheses",
+        "- distinguishing fact's role in deduction",
+        "Ignored as content/cosmetic: seed, names, location, contact identity, "
+        "hypothesis identity, and rendered wording",
         "",
         "Most common structure:",
         f"{most_common.count} / {analysis.seeds_analyzed} "
@@ -161,13 +160,12 @@ def format_analysis(analysis: DiversityAnalysis) -> str:
         lines.extend(
             (
                 "",
-                f"{index}. actual contact: {signature.actual_contact_id}",
+                f"{index}. hypotheses available: {signature.hypothesis_count}",
                 "   patient knows: "
                 + ", ".join(signature.patient_known_event_ids),
                 "   witness knows: "
                 + ", ".join(signature.witness_known_event_ids),
-                "   hypotheses: " + ", ".join(signature.hypothesis_contact_ids),
-                f"   food history: {signature.food_history_outcome}",
+                f"   distinguishing fact: {signature.distinguishing_fact_effect}",
                 f"   count: {structure.count}",
                 f"   percentage: {structure.percentage:.1f}%",
             )

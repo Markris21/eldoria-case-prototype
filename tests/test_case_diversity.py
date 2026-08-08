@@ -8,7 +8,7 @@ from case_diversity import (
     concrete_case_signature,
     investigation_structure_signature,
 )
-from case_generator import CONTACTS, generate_case
+from case_generator import CONTACTS, LOCATIONS, generate_case
 
 
 def test_same_case_produces_same_concrete_signature() -> None:
@@ -56,13 +56,24 @@ def test_cosmetic_wording_is_not_in_investigation_structure_signature() -> None:
     ) == investigation_structure_signature(case)
 
 
-def test_different_actual_contact_changes_investigation_structure() -> None:
+def test_different_contact_content_with_same_deduction_path_has_same_structure() -> None:
     case = generate_case(18472)
     changed_case = replace(
         case,
-        contact_id="eating_food",
-        contact=CONTACTS["eating_food"],
+        location_id="farm_storehouse",
+        location=LOCATIONS["farm_storehouse"],
+        contact_id="wound_contact",
+        contact=CONTACTS["wound_contact"],
     )
+
+    assert investigation_structure_signature(
+        changed_case
+    ) == investigation_structure_signature(case)
+
+
+def test_different_knowledge_pattern_changes_investigation_structure() -> None:
+    case = generate_case(18472)
+    changed_case = replace(case, contact_observers=())
 
     assert investigation_structure_signature(
         changed_case
