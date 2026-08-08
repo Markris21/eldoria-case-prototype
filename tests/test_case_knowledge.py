@@ -45,6 +45,22 @@ def test_witness_knows_presence_and_observed_contact_only() -> None:
 
 
 @pytest.mark.parametrize("participant_role", ("patient", "witness"))
+def test_contact_knowledge_does_not_reveal_contamination(
+    participant_role: str,
+) -> None:
+    case = generate_case(18472)
+    participant = getattr(case, participant_role)
+    knowledge = derive_knowledge(case.event_records, participant)
+    contact_fact = next(
+        fact.fact for fact in knowledge if fact.source_event_id == "contact"
+    )
+
+    assert contact_fact == f"{case.patient} drank water at the {case.location}."
+    assert case.source not in contact_fact
+    assert "contaminat" not in contact_fact.lower()
+
+
+@pytest.mark.parametrize("participant_role", ("patient", "witness"))
 def test_every_known_fact_has_matching_event_provenance(participant_role: str) -> None:
     case = generate_case(18472)
     participant = getattr(case, participant_role)

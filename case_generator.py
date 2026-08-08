@@ -23,6 +23,12 @@ CONTACTS = {
     "wound_contact": "touching contaminated material with an open wound",
 }
 
+OBSERVABLE_CONTACT_ACTIONS = {
+    "eating_food": "ate food",
+    "drinking_water": "drank water",
+    "wound_contact": "touched material with an open wound",
+}
+
 # The model only offers contacts that make sense at the selected location.
 ALLOWED_CONTACTS_BY_LOCATION = {
     "forest_camp": ("eating_food", "drinking_water"),
@@ -82,7 +88,10 @@ class CaseTruth:
             CaseEvent(
                 event_id="contact",
                 day=self.contact_day,
-                fact=f"{self.patient} came into contact by {self.contact}.",
+                fact=(
+                    f"{self.patient} {OBSERVABLE_CONTACT_ACTIONS[self.contact_id]} "
+                    f"at the {self.location}."
+                ),
                 participants=(self.patient,),
                 observers=self.contact_observers,
             ),
