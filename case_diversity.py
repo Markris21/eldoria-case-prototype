@@ -20,6 +20,7 @@ class ConcreteCaseSignature:
     location_id: str
     contact_id: str
     contact_observers: tuple[str, ...]
+    carrier_condition_observers: tuple[str, ...]
     food_history_participants: tuple[str, ...]
 
 
@@ -65,6 +66,7 @@ def concrete_case_signature(case: CaseTruth) -> ConcreteCaseSignature:
         location_id=case.location_id,
         contact_id=case.contact_id,
         contact_observers=case.contact_observers,
+        carrier_condition_observers=case.carrier_condition_observers,
         food_history_participants=case.food_history_participants,
     )
 
@@ -77,20 +79,21 @@ def investigation_structure_signature(
     patient_knowledge = derive_knowledge(case.event_records, case.patient)
     witness_knowledge = derive_knowledge(case.event_records, case.witness)
     hypotheses = hypotheses_for(case)
+    patient_event_ids = tuple(fact.source_event_id for fact in patient_knowledge)
+    witness_event_ids = tuple(fact.source_event_id for fact in witness_knowledge)
+
+    if "carrier_condition" in patient_event_ids:
+        distinguishing_fact_effect = "prior_condition_supports_correct_hypothesis"
+    elif case.contact_id == "eating_food":
+        distinguishing_fact_effect = "supports_correct_hypothesis"
+    else:
+        distinguishing_fact_effect = "eliminates_alternative"
 
     return InvestigationStructureSignature(
-        patient_known_event_ids=tuple(
-            fact.source_event_id for fact in patient_knowledge
-        ),
-        witness_known_event_ids=tuple(
-            fact.source_event_id for fact in witness_knowledge
-        ),
+        patient_known_event_ids=patient_event_ids,
+        witness_known_event_ids=witness_event_ids,
         hypothesis_count=len(hypotheses),
-        distinguishing_fact_effect=(
-            "supports_correct_hypothesis"
-            if case.contact_id == "eating_food"
-            else "eliminates_alternative"
-        ),
+        distinguishing_fact_effect=distinguishing_fact_effect,
     )
 
 
