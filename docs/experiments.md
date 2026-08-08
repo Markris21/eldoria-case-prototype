@@ -50,7 +50,7 @@ Najpierw należy zweryfikować rdzeń generowania przypadków. Dopiero pozytywne
 
 ## EXP-001 — Fakty zamiast ręcznie pisanych historii
 
-**Status:** TESTOWANA
+**Status:** POTWIERDZONA
 
 ### Hipoteza
 
@@ -68,9 +68,44 @@ Wygenerowany przypadek jest logiczny i można wskazać, które reguły oraz dane
 
 Większość sensownych historii wymaga ręcznego dopisywania konkretnych sekwencji zdarzeń albo wyjątków w kodzie.
 
+### Metoda
+
+Zaimplementowano minimalny generator pełnej prawdy przypadku oparty na seedzie.
+
+Generator składa przypadek z małych elementów danych:
+
+- pacjenta,
+- jednego źródła problemu,
+- miejsca kontaktu,
+- sposobu kontaktu,
+- prostego ciągu zdarzeń,
+- łańcucha przyczynowego.
+
+Zgodność kontaktu z miejscem wynika z prostej reguły dozwolonych kombinacji. Generator nie przechowuje i nie losuje gotowych kompletnych scenariuszy.
+
+Wykonano testy automatyczne oraz ręczny przegląd 20 kolejnych seedów od 100 do 119.
+
 ### Wynik
 
-Jeszcze nie wykonano testu implementacyjnego.
+Testy automatyczne zakończyły się wynikiem `122 passed`.
+
+W ręcznie przejrzanych 20 przypadkach nie znaleziono nielogicznych kombinacji miejsca, sposobu kontaktu ani łańcucha przyczynowego.
+
+Różne seedy tworzyły różne kombinacje pacjenta, miejsca i sposobu kontaktu, a ten sam seed pozostawał odtwarzalny.
+
+Eksperyment pokazał, że na tym poziomie można zbudować spójną prawdę przypadku przez składanie danych i prostych reguł bez ręcznego pisania każdego przypadku.
+
+### Ograniczenia wyniku
+
+Struktura ciągu wydarzeń pozostaje obecnie sztywna. Zmieniają się elementy przypadku, ale przebieg zdarzeń korzysta z tego samego schematu.
+
+EXP-001 nie potwierdza jeszcze, że generator tworzy różnorodne lub ciekawe historie, dobrą dedukcję ani że model będzie skalował się na wiele źródeł i problemów.
+
+### Wniosek
+
+Hipoteza została potwierdzona na aktualnym poziomie eksperymentu.
+
+Możemy przejść do badania kolejnego ryzyka bez rozbudowywania EXP-001 na zapas.
 
 ---
 
@@ -130,10 +165,6 @@ Jeszcze nie wykonano testu implementacyjnego.
 
 ## Następny eksperyment
 
-Pierwszy eksperyment implementacyjny powinien być możliwie mały.
+EXP-001 potwierdził, że minimalna prawda przypadku może być składana z małych elementów danych i prostych reguł.
 
-Nie budujemy jeszcze pełnego terminalowego wywiadu.
-
-Najpierw chcemy odpowiedzieć na pytanie:
-
-> Czy program potrafi samodzielnie złożyć jedną spójną prawdę przypadku z małego zestawu danych i reguł?
+Kolejny eksperyment powinien sprawdzić następne ryzyko zgodnie z roadmapą projektu, bez rozbudowywania potwierdzonego zakresu na zapas.
