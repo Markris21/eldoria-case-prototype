@@ -122,3 +122,34 @@ Mniejsze dokumenty są łatwiejsze do przeglądania, aktualizacji i używania pr
 ### Konsekwencje
 
 Po zbliżeniu się do limitu dokument należy podzielić według odpowiedzialności zamiast stale go rozbudowywać.
+
+---
+
+## DEC-007 — Kontrolowane archetypy śledztwa
+
+**Status:** ZATWIERDZONA
+
+### Decyzja
+
+Dalszy rozwój proceduralnego generatora przypadków będzie oparty na kontrolowanych archetypach śledztwa.
+
+Nie próbujemy budować całkowicie uniwersalnego generatora dowolnych historii ani wracać do ręcznego pisania każdego przypadku.
+
+Archetyp ma definiować charakterystyczny typ problemu i tok dedukcji, natomiast generator proceduralnie składa konkretne osoby, miejsca, zdarzenia, chronologię, źródła, obserwatorów, fakty i warianty.
+
+### Powód
+
+Pierwszy cykl badań potwierdził, że prawda przypadku, wiedza uczestników i dedukcja mogą wynikać z danych i zdarzeń.
+
+Jednocześnie analiza różnorodności wykazała, że duża liczba kombinacji danych nie przekłada się automatycznie na różne ścieżki gameplayu.
+
+Kontrolowane archetypy pozwalają świadomie projektować różne rodzaje rozumowania, zachowując proceduralną różnorodność wewnątrz każdego archetypu.
+
+### Konsekwencje
+
+- nowe archetypy powinny wnosić rzeczywistą różnicę w przebiegu śledztwa lub dedukcji,
+- sama zmiana nazw, miejsc, kontaktów lub źródeł nie jest traktowana jako nowa struktura gameplayu,
+- istniejący analizator różnorodności pozostaje narzędziem kontroli regresji,
+- małe jawne branche archetypowe są dopuszczalne w prototypie, jeśli nie prowadzą do duplikowania całego pipeline'u,
+- nie budujemy ogólnego frameworka archetypów, dopóki kolejne eksperymenty nie pokażą realnej potrzeby,
+- do głównej Eldorii przenosimy przede wszystkim potwierdzone modele i wnioski, a nie automatycznie cały kod prototypu.
