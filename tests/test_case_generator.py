@@ -29,7 +29,7 @@ def test_generated_case_contains_required_truth(seed: int) -> None:
     assert case.source == SOURCE
     assert case.location == LOCATIONS[case.location_id]
     assert case.contact == CONTACTS[case.contact_id]
-    assert len(case.events) == 4
+    assert len(case.events) == 5
     assert all(case.patient in event or case.source in event for event in case.events)
     assert len(case.causal_chain) == 5
     assert str(seed) in report

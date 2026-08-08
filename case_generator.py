@@ -67,6 +67,7 @@ class CaseTruth:
     contact_day: int
     affected_day: int
     contact_observers: tuple[str, ...]
+    food_history_participants: tuple[str, ...]
 
     @property
     def event_records(self) -> tuple[CaseEvent, ...]:
@@ -94,6 +95,16 @@ class CaseTruth:
                 ),
                 participants=(self.patient,),
                 observers=self.contact_observers,
+            ),
+            CaseEvent(
+                event_id="food_history",
+                day=self.contact_day,
+                fact=(
+                    f"{self.patient} ate food at the {self.location}."
+                    if self.contact_id == "eating_food"
+                    else f"{self.patient} did not eat anything at the {self.location}."
+                ),
+                participants=self.food_history_participants,
             ),
             CaseEvent(
                 event_id="affected",
@@ -147,6 +158,7 @@ def generate_case(seed: int) -> CaseTruth:
         contact_day=contact_day,
         affected_day=affected_day,
         contact_observers=(witness,),
+        food_history_participants=(patient,),
     )
 
 

@@ -21,10 +21,19 @@ class InterviewTopic:
     source_event_id: str
 
 
+@dataclass(frozen=True)
+class Hypothesis:
+    """One player-visible explanation tied to a possible case contact."""
+
+    label: str
+    contact_id: str
+
+
 TOPICS = (
     InterviewTopic("where", "Where did this happen?", "presence"),
     InterviewTopic("contact", "What happened there?", "contact"),
     InterviewTopic("later", "What happened later?", "affected"),
+    InterviewTopic("food", "What did the patient eat?", "food_history"),
 )
 
 
@@ -57,6 +66,40 @@ def ask_topic(
     return known_fact.fact
 
 
+def hypotheses_for(case: CaseTruth) -> tuple[Hypothesis, Hypothesis]:
+    """Build exactly one true contact explanation and one alternative."""
+
+    if case.contact_id == "eating_food":
+        contact_ids = ("drinking_water", "eating_food")
+    else:
+        contact_ids = (case.contact_id, "eating_food")
+
+    return (
+        _hypothesis_for_contact(contact_ids[0]),
+        _hypothesis_for_contact(contact_ids[1]),
+    )
+
+
+def _hypothesis_for_contact(contact_id: str) -> Hypothesis:
+    if contact_id == "drinking_water":
+        label = "Contaminated water caused the patient's illness."
+    elif contact_id == "eating_food":
+        label = "Food eaten during the outing caused the patient's illness."
+    else:
+        label = "Contaminated material entering a wound caused the patient's illness."
+
+    return Hypothesis(
+        label=label,
+        contact_id=contact_id,
+    )
+
+
+def is_correct_hypothesis(case: CaseTruth, hypothesis: Hypothesis) -> bool:
+    """Evaluate a choice directly against the hidden case contact truth."""
+
+    return hypothesis.contact_id == case.contact_id
+
+
 def run_interview(case: CaseTruth) -> None:
     """Run the deliberately small EXP-003 terminal interaction."""
 
@@ -84,7 +127,7 @@ def run_interview(case: CaseTruth) -> None:
             print(f"{index}. {topic.label}")
 
         topic_choice = input("> ").strip()
-        if topic_choice not in ("1", "2", "3"):
+        if topic_choice not in ("1", "2", "3", "4"):
             print("Invalid choice.")
             continue
 
@@ -98,6 +141,19 @@ def run_interview(case: CaseTruth) -> None:
             print(f"- {fact.fact}")
     else:
         print("- None")
+
+    hypotheses = hypotheses_for(case)
+    print("\nHYPOTHESES")
+    for index, hypothesis in enumerate(hypotheses, start=1):
+        print(f"{index}. {hypothesis.label}")
+
+    hypothesis_choice = input("> ").strip()
+    if hypothesis_choice in ("1", "2"):
+        selected = hypotheses[int(hypothesis_choice) - 1]
+        result = "CORRECT" if is_correct_hypothesis(case, selected) else "INCORRECT"
+        print(f"\nHYPOTHESIS RESULT: {result}")
+    else:
+        print("\nHYPOTHESIS RESULT: Invalid choice.")
 
     print(f"\nCOMPLETE CASE TRUTH\n\n{format_report(case)}")
 
